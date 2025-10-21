@@ -1,33 +1,34 @@
-name Update Crypto Data Daily
+name: Update Crypto Data Daily
 
-on
-  schedule
-    - cron 0 0     # tiap jam 0000 UTC (0700 WIB)
-  workflow_dispatch      # bisa dijalankan manual juga
+on:
+  schedule:
+    - cron: "*/5 * * * *"  # tiap 5 menit
+    # - cron: "0 0 * * *"  # setiap jam 00:00 UTC (07:00 WIB)
+  workflow_dispatch:      # bisa dijalankan manual juga
 
-jobs
-  update
-    runs-on ubuntu-latest
+jobs:
+  update:
+    runs-on: ubuntu-latest
 
-    steps
-      - name Checkout repository
-        uses actionscheckout@v3
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name Set up Python
-        uses actionssetup-python@v4
-        with
-          python-version 3.10
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.10
 
-      - name Install dependencies
-        run pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
-      - name Update crypto data
-        run python update_data.py
+      - name: Update crypto data
+        run: python update_data.py
 
-      - name Commit and push changes
-        run 
-          git config --global user.name github-actions[bot]
-          git config --global user.email github-actions[bot]@users.noreply.github.com
-          git add datacrypto_data.csv
-          git commit -m Auto update crypto data
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/crypto_data.csv
+          git commit -m "Auto update crypto data" || echo "No changes to commit"
           git push
